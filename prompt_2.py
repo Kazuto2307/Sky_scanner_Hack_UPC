@@ -1,0 +1,1 @@
+curl --request POST 'https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search' --header 'x-api-key: your-api-key' --data '{ "query": { "market": "UK", "locale": "en-GB", "currency": "GBP", "queryLegs": [{ "originPlace": { "queryPlace": { "iata": "LHR" } }, "destinationPlace": { "queryPlace": { "iata": "LAX" } }, "anytime": true }] } }'
