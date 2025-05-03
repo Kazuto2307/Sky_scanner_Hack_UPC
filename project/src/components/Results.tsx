@@ -65,6 +65,8 @@ const Results: React.FC = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
     const fetchRecommendations = async () => {
       try {
         // 1) Llamada a tu script Python
@@ -82,18 +84,35 @@ const Results: React.FC = () => {
         });
 
         // Convertimos a JSON y escapamos las comillas
-        const finalBudCity = JSON.stringify(BudCity).replace(/"/g, '\\"');
+        const finalBudCity = JSON.stringify(BudCity)//.replace(/"/g, '\\"');
         console.log(finalBudCity);  
         const results = await getCityRecommendations(sessions);
         setRecommendations(results);
-        const finalResults = JSON.stringify(results).replace(/"/g, '\\"');
+        const finalResults = JSON.stringify(results)//.replace(/"/g, '\\"');
         // // console.log(finalResults);
         // // console.log('Recommendations:', results);
         const arg1= `${finalBudCity};${finalResults}`;
         console.log('arg1:', arg1);
         const parsedarg1 = encodeURIComponent(arg1)
-        const pyRes = await fetch(`/api/run-recs?arg1=${parsedarg1}`);
-        console.log('Python response:', pyRes);
+        // Llamar al servicio FastAPI
+        const response = await fetch('http://localhost:8000/api/recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          budgets: BudCity,
+          scores: results
+        }),
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error del servidor');
+      }
+
+      const pyData = await response.json();
+        // const pyRes = await fetch(`/api/run-recs?arg1=${parsedarg1}`);
+        // console.log('Python response:', pyRes);
         // if (!pyRes.ok) {
         //   console.log('Error executing Python script:', pyRes.statusText);
         //   throw new Error('Error ejecutando script Python');
