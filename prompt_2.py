@@ -150,7 +150,7 @@ print("Precio medio del destino: ", get_price_by_dest(['128667316'],("Tokyo","Ja
 
 def get_all_prices(origin_list,destination_list):
     result_all_dest = dict()
-    for destination in destination_list.keys():
+    for destination in destination_list:
         prices_dest = get_price_by_dest(origin_list, destination.split(', '))
         result_all_dest = result_all_dest | prices_dest
     return result_all_dest
@@ -158,8 +158,8 @@ def get_all_prices(origin_list,destination_list):
 
 if __name__ == "__main__":
     input = ' '.join(sys.argv[1:])  # sys.argv[0] es el nombre del script
-    print(type(input.split(";")[0]))
-    print(type(input.split(";")[1]))
+    print(input.split(";")[0])
+    print(input.split(";")[1])
     origins = json.loads(input.split(";")[0])
     destinations = json.loads(input.split(";")[1])
     result_all_dest = get_all_prices(origins.keys(),destinations.keys())
