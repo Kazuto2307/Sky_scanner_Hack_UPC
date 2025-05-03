@@ -130,7 +130,6 @@ def get_min_price(data):
 
 
 
-
 def get_price_by_dest(origin_list,destination):
     entityId_dest = search_city_entityId(destination[0],destination[1])
     result = dict()
@@ -147,7 +146,7 @@ def get_price_by_dest(origin_list,destination):
     return result
 
 
-print("Precio medio del destino: ", get_price_by_dest(['128667316'],("Tokyo","Japan")))
+#print("Precio medio del destino: ", get_price_by_dest(['128667316'],("valencia","spain")))
 
 def get_all_prices(origin_list,destination_list):
     result_all_dest = dict()
