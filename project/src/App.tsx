@@ -40,10 +40,14 @@ const TravelApp: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
       <div className="container mx-auto px-4 py-12">
         <header className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Globe className="text-blue-900 mr-3" size={32} />
-            <h1 className="text-4xl font-bold text-blue-900">TravelMatch</h1>
-          </div>
+        <div className="flex items-center justify-center mb-4">
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/commons/1/14/Skyscanner_Icon_2020.svg" 
+          alt="Skyscanner Logo" 
+          className="h-8 mr-3" // Ajusta la altura según necesites
+        />
+        <h1 className="text-4xl font-bold text-blue-600">SkyMeet</h1>
+      </div>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover destinations perfectly tailored to your unique travel style and preferences
           </p>
@@ -58,10 +62,10 @@ const TravelApp: React.FC = () => {
         </div>
       </div>
       
-      <footer className="mt-20 py-6 bg-blue-900 text-white">
+      <footer className="mt-20 py-6 bg-blue-600 text-white">
         <div className="container mx-auto px-4 text-center flex items-center justify-center">
           <Plane className="mr-2" size={16} />
-          <p>TravelMatch &copy; 2025 - Find your perfect destination</p>
+          <p>SkyMeet &copy; 2025 - Find your perfect destination</p>
         </div>
       </footer>
     </div>

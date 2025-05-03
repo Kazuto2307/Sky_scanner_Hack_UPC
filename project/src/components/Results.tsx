@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTravelContext } from '../context/TravelContext';
 import Button from './Button';
 import { MapPin, Sparkles, Plane, AlertTriangleIcon,Globe} from 'lucide-react';
-import { getCityRecommendations } from '../lib/gemini';
+import { getCityRecommendations, FinalRecommendations } from '../lib/gemini';
 
 const Results: React.FC = () => {
   const { sessions, validateAllSessionsComplete, getCompletedSessions, getCurrentSession } = useTravelContext();
@@ -111,7 +111,9 @@ const Results: React.FC = () => {
       }
 
       const pyData = await response.json();
-        // const pyRes = await fetch(`/api/run-recs?arg1=${parsedarg1}`);
+      // console.log(pyData, 'Data')
+      const final_list = await FinalRecommendations(sessions, pyData)
+        // const  = await fetch(`/api/run-recs?arg1=${parsedarg1}`);
         // console.log('Python response:', pyRes);
         // if (!pyRes.ok) {
         //   console.log('Error executing Python script:', pyRes.statusText);
@@ -121,15 +123,15 @@ const Results: React.FC = () => {
         // console.log('Resultados Python:', pyData);
 
         // Procesar ciudades con imágenes
-        const citiesWithImages = await Promise.all(
-          Object.entries(results)
-            .sort(([, a], [, b]) => b - a)
-            .map(async ([city, score]) => ({
-              name: city,
-              match: score,
-              description: `Experience the unique blend of culture, attractions, and lifestyle in ${city}.`,
-              imageUrl: await getCityImage(city)
-            }))
+      const citiesWithImages = await Promise.all(
+        Object.entries(final_list)
+          // .sort(([, a], [, b]) => b - a)
+          .map(async ([city, description]) => ({
+            name: city,
+            match: 10,
+            description: description,
+            imageUrl: await getCityImage(city)
+          }))
         );
         
         setRecommendedCities(citiesWithImages);

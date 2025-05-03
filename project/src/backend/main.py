@@ -25,7 +25,7 @@ app.add_middleware(
 
 class RecommendationRequest(BaseModel):
     budgets: dict[str, int]
-    scores: dict[str, int]
+    scores: dict[str, float]
 
 
 class Item(BaseModel):

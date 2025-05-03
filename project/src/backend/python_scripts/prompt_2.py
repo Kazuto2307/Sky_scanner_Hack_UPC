@@ -249,6 +249,7 @@ def main_program(scores: dict[str: int], budgets: dict[str,int]):
 
 
     prompt = f'''
+    
 You are a travel assistant helping a group choose between several potential
  travel destinations. Given a list of cities and the group’s specific interests,
    write a detailed and engaging description for each city. Each description should help
@@ -266,7 +267,7 @@ Adapted to the interests of the group (e.g. food, nature, nightlife, history, ar
 
 Written in an informative yet engaging tone.
 
-Return the output as a JSON object with this exact structure:
+Return the output as a JSON object with this exact structure (THE OUTPUT MUST ONLY CONTAIN THE JSON AND NO OTHER INFORMATION):
 
 {{
   "destination_name1": "description",
@@ -282,6 +283,5 @@ List of destinations:
 
 Group interests:
 
-[insert specific interests here]
     '''
     return prompt
