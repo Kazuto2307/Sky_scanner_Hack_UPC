@@ -1,8 +1,9 @@
 import sys
 import requests
 import json
+from collections import defaultdict
 
-import sys
+
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -156,12 +157,88 @@ def get_all_prices(origin_list,destination_list):
     return result_all_dest
 
 
+######################################################################################
+
+def min_max_scale(scores):
+    min_score = min(scores.values())
+    max_score = max(scores.values())
+    range_score = max_score - min_score if max_score != min_score else 1  # avoid division by 0
+    return {dest: (score - min_score) / range_score for dest, score in scores.items()}
+
+
+def calculate_new_scores(standardized_scores, normalized_by_origin, origin_names_and_budget_tolerance):
+    new_scores = defaultdict(dict)
+    for origen, budget_tolerance in origin_names_and_budget_tolerance.items():
+        for destino, score in standardized_scores.items():
+            
+            # get the normalized budget for the destination
+            normalized_budget = normalized_by_origin[origen].get(destino, 0)
+            # calculate the new score
+            new_score = (score) + (budget_tolerance * normalized_budget)
+            new_scores[origen][destino] = new_score
+    return new_scores
+
+
+def rank_destinations(new_scores):
+    ranked_destinations = {}
+    for origen, scores in new_scores.items():
+        # sort the destinations by score
+        sorted_destinations = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        # assign ranks from n to 1 (where n is the number of destinations)
+        ranked_destinations[origen] = {dest: len(sorted_destinations) - rank for rank, (dest, _) in enumerate(sorted_destinations)}
+    return ranked_destinations
+
+
+
+def calculate_borda_count(ranked_destinations):
+    borda_count = {}
+    for origin, scores in ranked_destinations.items():
+        for destination, score in scores.items():
+            if destination not in borda_count:
+                borda_count[destination] = 0
+            borda_count[destination] += score
+    return borda_count
+
+
+def rank_destinations_by_borda_count(borda_count):
+    sorted_destinations = sorted(borda_count.items(), key=lambda x: x[1], reverse=True)
+    return sorted_destinations
+
+
 if __name__ == "__main__":
     input = ' '.join(sys.argv[1:])  # sys.argv[0] es el nombre del script
-    origins = json.loads(input.split(";")[0])
-    destinations = json.loads(input.split(";")[1])
-    print(origins)
-    print(destinations)
-    result_all_dest = get_all_prices(origins.keys(),destinations.keys())
-    print(result_all_dest)
+    origin_names_and_budget_tolerance = json.loads(input.split(";")[0])
+    destination_scores = json.loads(input.split(";")[1])
+    print(origin_names_and_budget_tolerance)
+    print(destination_scores)
+    destination_budgets = get_all_prices(origin_names_and_budget_tolerance.keys(),destination_scores.keys())
+    print(destination_budgets)
 
+
+    ################################################################################
+
+    standardized_scores = min_max_scale(destination_scores)
+
+    budgets_by_origin = defaultdict(dict)
+    for dest, origenes in destination_budgets.items():
+        for origen, precio in origenes.items():
+            budgets_by_origin[origen][dest] = precio
+
+    # Paso 2: aplicar min-max por origen
+    normalized_by_origin = {}
+    for origen, destinos in budgets_by_origin.items():
+        precios = list(destinos.values())
+        min_p = min(precios)
+        max_p = max(precios)
+        rango = max_p - min_p if max_p != min_p else 1  # evitar división por 0
+        normalized_by_origin[origen] = {
+            dest: 1-((precio - min_p) / rango)
+            for dest, precio in destinos.items()
+        }
+
+    new_scores = calculate_new_scores(standardized_scores, normalized_by_origin, origin_names_and_budget_tolerance)
+    ranked_destinations = rank_destinations(new_scores)
+    borda_count = calculate_borda_count(ranked_destinations)
+    ranked_destinations_final = rank_destinations_by_borda_count(borda_count)
+
+    print(ranked_destinations_final)
