@@ -133,14 +133,14 @@ def get_min_price(data):
 def get_price_by_dest(origin_list,destination):
     entityId_dest = search_city_entityId(destination[0],destination[1])
     result = dict()
+    result[destination[0]+", "+destination[1]] = dict()
     for city in origin_list:
-        print(f"Origin: {city}. Destination: {entityId_dest}")
         data = get_query(city,entityId_dest)
         response = requests.post(url, headers=headers, json=data)
         data = response.json()
         min_price = get_min_price(data)
         if type(min_price) != str:
-            result[destination[0]+", "+destination[1]] = get_min_price(data)
+            result[destination[0]+", "+destination[1]][city] = get_min_price(data)
         else:
             return dict()
     return result
@@ -158,10 +158,10 @@ def get_all_prices(origin_list,destination_list):
 
 if __name__ == "__main__":
     input = ' '.join(sys.argv[1:])  # sys.argv[0] es el nombre del script
-    print(input.split(";")[0])
-    print(input.split(";")[1])
     origins = json.loads(input.split(";")[0])
     destinations = json.loads(input.split(";")[1])
+    print(origins)
+    print(destinations)
     result_all_dest = get_all_prices(origins.keys(),destinations.keys())
     print(result_all_dest)
 
