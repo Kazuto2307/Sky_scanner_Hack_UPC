@@ -241,3 +241,9 @@ if __name__ == "__main__":
     ranked_destinations_final = rank_destinations_by_borda_count(borda_count)
 
     print(ranked_destinations_final)
+
+    prompt = '''
+Crea una descripcion para cada uno de los siguientes destinos turisticos explicando como seria un viaje en esa ciudad.
+
+
+    '''
