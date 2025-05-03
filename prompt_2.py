@@ -68,17 +68,17 @@ def search_city_entityId(city_name,country_name):
         if cities[result[0]]["type"] == "PLACE_TYPE_CITY":
             return result[0]
         else:
-            return "No city found"
+            return None
     elif len(result) == 0:
-        return "No city found"
+        return None
     else:
         result_city = [c for c in result if cities[c]["type"] == 'PLACE_TYPE_CITY']
         if len(result_city) == 1:
             return result_city[0]
         else:
-            return "Mas de una ciudad en el mismo pais con el mismo nombre"
+            return None
 
-#print(search_city_entityId('tenerife','spain'))
+#print(search_city_entityId('rome','italy'))
 #print(search_city_entityId("Cape Town","South Africa"))
 #print(search_city_entityId('Barcelona','Spain'))
 
@@ -132,6 +132,8 @@ def get_min_price(data):
 
 def get_price_by_dest(origin_list,destination):
     entityId_dest = search_city_entityId(destination[0],destination[1])
+    if entityId_dest is None:
+        return dict()
     result = dict()
     result[destination[0]+", "+destination[1]] = dict()
     for city in origin_list:
@@ -242,8 +244,42 @@ if __name__ == "__main__":
 
     print(ranked_destinations_final)
 
-    prompt = '''
-Crea una descripcion para cada uno de los siguientes destinos turisticos explicando como seria un viaje en esa ciudad.
+    top3 = [nombre for nombre, _ in sorted(ranked_destinations_final, key=lambda x: x[1], reverse=True)[:3]]
 
 
+    prompt = f'''
+You are a travel assistant helping a group choose between several potential
+ travel destinations. Given a list of cities and the group’s specific interests,
+   write a detailed and engaging description for each city. Each description should help
+     the group imagine what a vacation there would be like, highlighting what makes the
+       city unique and what types of activities or experiences they can expect—specifically 
+       tailored to their interests.
+
+       The descriptions must be:
+
+Specific and vivid.
+
+Focused on tourism (landmarks, food, culture, nature, etc.).
+
+Adapted to the interests of the group (e.g. food, nature, nightlife, history, art, sports).
+
+Written in an informative yet engaging tone.
+
+Return the output as a JSON object with this exact structure:
+
+{{
+  "destination_name1": "description",
+  "destination_name2": "description"
+  "destination_name3": "description"
+}}
+
+Input:
+
+List of destinations:
+
+[{top3}]
+
+Group interests:
+
+[insert specific interests here]
     '''
