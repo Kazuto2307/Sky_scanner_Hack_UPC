@@ -67,9 +67,39 @@ const Results: React.FC = () => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
+        // 1) Llamada a tu script Python
+      //1. {origenid: budget}
+      //2. {Ciudad, Pais: puntuacion}
+      //chanchullo: 
+        //const arg1 = JSON.stringify(sessions.map(session => session.budgetandcity));
+        const BudCity: Record<string, number> = {};
+
+        sessions.forEach(session => {
+          if (session && session.budgetandcity?.text) {
+            const [id, budget] = session.budgetandcity.text.split('|');
+            BudCity[id] = parseInt(budget, 10);
+          }
+        });
+
+        // Convertimos a JSON y escapamos las comillas
+        const finalBudCity = JSON.stringify(BudCity).replace(/"/g, '\\"');
+        console.log(finalBudCity);  
         const results = await getCityRecommendations(sessions);
         setRecommendations(results);
-        console.log('Recommendations:', results);
+        const finalResults = JSON.stringify(results).replace(/"/g, '\\"');
+        // // console.log(finalResults);
+        // // console.log('Recommendations:', results);
+        const arg1= `${finalBudCity};${finalResults}`;
+        console.log('arg1:', arg1);
+        const parsedarg1 = encodeURIComponent(arg1)
+        const pyRes = await fetch(`/api/run-recs?arg1=${parsedarg1}`);
+        console.log('Python response:', pyRes);
+        // if (!pyRes.ok) {
+        //   console.log('Error executing Python script:', pyRes.statusText);
+        //   throw new Error('Error ejecutando script Python');
+        // }
+        // const pyData = await pyRes.json();
+        // console.log('Resultados Python:', pyData);
 
         // Procesar ciudades con imágenes
         const citiesWithImages = await Promise.all(

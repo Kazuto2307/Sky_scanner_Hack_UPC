@@ -90,7 +90,7 @@ const PreferencesForm: React.FC = () => {
         const fullPreferences = `${preferences}`;
         console.log('Pref',preferences)
         updatePreferences(currentSession.id, fullPreferences);
-        const BudgetAndCity = `${selectedAirport.entityId} | Budget:${budget}`;
+        const BudgetAndCity = `${selectedAirport.entityId}|${budget}`;
         updateCityandBudget(currentSession.id, BudgetAndCity)
         console.log(BudgetAndCity)
         moveToNextStep(currentSession.id);
