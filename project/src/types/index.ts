@@ -11,7 +11,7 @@ export interface Session {
   currentStep: 'tierList' | 'preferences' | 'geographical' | 'results';
   tierList: TierListData;
   geographical: GeographicalPreference;
-}
+  budgetandcity?: TravelPreference;}
 
 export interface TravelAspect {
   id: string;
