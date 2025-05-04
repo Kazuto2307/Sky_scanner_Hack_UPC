@@ -101,7 +101,7 @@ export async function getCityRecommendations(completedSessions: Session[]) {
     const prompt = `A group of people wants to make a travel, where the most important aspects for them are [from most to least important]: ${rankedItems.join(', ')}. 
     In their dream travel they do this: ${allPreferences}. Try to consider as much as possible the preferences of the group.
     And the most liked continents to visit [from most to least] are ${topContinents.join(', ')}. 
-    Considering all this information, think deeply of the 10 cities WITH AIRPORT that are most suitable for this travel. 
+    Considering all this information, think deeply of the 10 cities that are most suitable for this travel. 
     Don't answer with the first cities that come to your mind, but think about the best options for this group of people.
     For each city give also a mark for how good it siuts their demands. 
     OUTPUT:
