@@ -2,11 +2,12 @@ import sys
 import requests
 import json
 from collections import defaultdict
-from statistics import mean
 
 
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+city_list = sys.argv[1:]
 
 url = "https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search"
 
@@ -244,15 +245,8 @@ def main_program(scores: dict[str: int], budgets: dict[str,int]):
 
     print(ranked_destinations_final)
 
-    dest_mean_prices = {
-    destino: mean(precios_por_origen.values())
-    for destino, precios_por_origen in sorted(destination_budgets, key=lambda x: x[1], reverse=True)[:3].items()
-    }
-
     top3 = [nombre for nombre, _ in sorted(ranked_destinations_final, key=lambda x: x[1], reverse=True)[:3]]
 
-    top3_mean_prices = {dest:price for dest,price in dest_mean_prices.items() if dest in top3}
-    print(top3_mean_prices)
 
     prompt = f'''
     
@@ -274,12 +268,13 @@ Adapted to the interests of the group (e.g. food, nature, nightlife, history, ar
 Written in an informative yet engaging tone.
 
 Return the output as a JSON object with this exact structure (THE OUTPUT MUST ONLY CONTAIN THE JSON AND NO OTHER INFORMATION):
-
 {{
-  "destination_name1": "description",
+  "destination_name1": "description"
   "destination_name2": "description"
   "destination_name3": "description"
 }}
+Make the description VERY schematic (point by point), eye catching and engaging, make special emphasis on justifing your city choices with the group and individual interests.
+
 
 Input:
 
@@ -290,4 +285,4 @@ List of destinations:
 Group interests:
 
     '''
-    return prompt, top3_mean_prices
+    return prompt

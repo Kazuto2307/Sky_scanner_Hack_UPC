@@ -105,7 +105,7 @@ export async function getCityRecommendations(completedSessions: Session[]) {
     Don't answer with the first cities that come to your mind, but think about the best options for this group of people.
     For each city give also a mark for how good it siuts their demands. 
     OUTPUT:
-    Return ONLY a JSON with a format like this one: {"Barcelona, Spain": 10, "Milan, Italy": 9, ...}`;
+    Return ONLY a JSON with a format like this one: {"Barcelona, Spain": 10, "Milan, Italy": 9, "City_Name, Country": Mark, ...}`;
     // console.log('Prompt:', prompt);
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -128,7 +128,7 @@ export async function getCityRecommendations(completedSessions: Session[]) {
 export async function FinalRecommendations(completedSessions: Session[], prompt: string) {
   try{
   const { rankedItems, allPreferences, topContinents } = await processSessionData(completedSessions);
-  const updatedPrompt = `${prompt} ${rankedItems.join(', ')}.`;
+  const updatedPrompt = `${prompt} Group preferences:${rankedItems.join(', ')}. Individual preferences: ${allPreferences}.`;
   const result = await model.generateContent(prompt);
   const response = await result.response;
   const text = response.text();

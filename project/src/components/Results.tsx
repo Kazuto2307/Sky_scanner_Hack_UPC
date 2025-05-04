@@ -3,6 +3,8 @@ import { useTravelContext } from '../context/TravelContext';
 import Button from './Button';
 import { MapPin, Sparkles, Plane, AlertTriangleIcon,Globe} from 'lucide-react';
 import { getCityRecommendations, FinalRecommendations } from '../lib/gemini';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const Results: React.FC = () => {
   const { sessions, validateAllSessionsComplete, getCompletedSessions, getCurrentSession } = useTravelContext();
@@ -232,18 +234,26 @@ const Results: React.FC = () => {
                   />
                 </div>
                 <div className="p-6 md:w-2/3 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex items-center">
-                        <MapPin className="text-orange-500 mr-2" size={18} />
-                        <h3 className="text-xl font-bold text-blue-900">{destination.name}</h3>
-                      </div>
-                      <div className="bg-blue-50 text-blue-900 px-3 py-1 rounded-full text-sm font-medium">
-                        {destination.match * 10}% Match
-                      </div>
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center">
+                      <MapPin className="text-orange-500 mr-2" size={18} />
+                      <h3 className="text-xl font-bold text-blue-900">
+                        {destination.name}
+                      </h3>
                     </div>
-                    <p className="text-gray-600 mt-2">{destination.description}</p>
+                    <div className="bg-blue-50 text-blue-900 px-3 py-1 rounded-full text-sm font-medium">
+                      {destination.match * 10}% Match
+                    </div>
                   </div>
+                  {/* Aquí renderizamos Markdown en lugar de un <p> */}
+                  <div className="prose text-gray-600 mt-2">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {destination.description}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              
                   
                   <div className="mt-4">
                     <Button
