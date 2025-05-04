@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException #type: ignore
+from fastapi.middleware.cors import CORSMiddleware #type: ignore
 from pydantic import BaseModel
-from loguru import logger
+from loguru import logger #type: ignore
 import subprocess
 import json
 import os
@@ -21,7 +21,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class RecommendationRequest(BaseModel):
     budgets: dict[str, int]

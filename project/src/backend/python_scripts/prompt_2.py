@@ -152,6 +152,7 @@ def get_price_by_dest(origin_list,destination):
 
 def get_all_prices(origin_list,destination_list):
     result_all_dest = dict()
+
     for destination in destination_list:
         prices_dest = get_price_by_dest(origin_list, destination.split(', '))
         result_all_dest = result_all_dest | prices_dest
@@ -173,8 +174,12 @@ def calculate_new_scores(standardized_scores, normalized_by_origin, origin_names
         for destino, score in standardized_scores.items():
             
             # get the normalized budget for the destination
+
             normalized_budget = normalized_by_origin[origen].get(destino, 0)
             # calculate the new score
+
+            print
+
             new_score = (score) + (budget_tolerance * normalized_budget)
             new_scores[origen][destino] = new_score
     return new_scores
@@ -205,23 +210,75 @@ def rank_destinations_by_borda_count(borda_count):
     sorted_destinations = sorted(borda_count.items(), key=lambda x: x[1], reverse=True)
     return sorted_destinations
 
+def replace_origin_codes_with_names(destination_budgets: dict[str, dict[str, float]], cities: dict[str, dict]) -> dict[str, dict[str, float]]:
+    """
+    Transforma el diccionario destination_budgets cambiando cada origin_entityId
+    por su nombre correspondiente según el diccionario cities.
+    """
+    renamed_budgets = {}
+    for destino, origenes in destination_budgets.items():
+        renamed_budgets[destino] = {}
+        for origin_id, precio in origenes.items():
+            nombre_origen = cities.get(origin_id, {}).get('name', origin_id)
+            renamed_budgets[destino][nombre_origen] = precio
+    return renamed_budgets
 
+def replace_origin_codes_with_names2(
+    origin_names_and_budget_tolerance: dict[str, float],
+    cities: dict[str, dict]
+) -> dict[str, dict[str, float]]:
+    """
+    Reemplaza cada origin_entityId por su nombre correspondiente y empaqueta
+    la tolerancia de presupuesto en un dict anidado.
+
+    Args:
+        origin_names_and_budget_tolerance: dict que mapea origin_entityId a budget_tolerance.
+        cities: diccionario que mapea entityId a su info (incluye el campo 'name').
+
+    Returns:
+        dict donde cada clave es el nombre del origen y el valor es
+        {'budget_tolerance': tolerance}.
+    """
+    renamed = {}
+    for origin_id, tolerance in origin_names_and_budget_tolerance.items():
+        origin_name = cities.get(origin_id, {}).get('name', origin_id)
+        renamed[origin_name] = tolerance
+    return renamed
+
+def generate_price_messages(destination_budgets: dict[str, dict[str, float]], destinos: list[str]) -> str:
+    """Genera un mensaje por cada destino en inglés indicando coste y origen."""
+    messages = []
+    for destino in destinos:
+        prices_by_origin = destination_budgets.get(destino)
+        if not prices_by_origin:
+            messages.append(f"No price data available for destination {destino}")
+            continue
+        for origen, precio in prices_by_origin.items():
+            messages.append(f"For {destino} , it costs {precio} £ from {origen} to travel")
+    return "\n".join(messages)
 
 def main_program(scores: dict[str: int], budgets: dict[str,int]):
     # input = ' '.join(sys.argv[1:])  # sys.argv[0] es el nombre del script
     origin_names_and_budget_tolerance = budgets
     destination_scores = scores
-    print(origin_names_and_budget_tolerance)
-    print(destination_scores)
+
+
     destination_budgets = get_all_prices(origin_names_and_budget_tolerance.keys(),destination_scores.keys())
-    print(destination_budgets)
 
 
     ################################################################################
 
+    # Paso 1: renombrar los entityId de los orígenes por su nombre
+    destination_budgets = replace_origin_codes_with_names(destination_budgets, cities)
+    origin_names_and_budget_tolerance = replace_origin_codes_with_names2(origin_names_and_budget_tolerance, cities)
+
+    print("destination_budgets: ", destination_budgets)
+    print("origin_names_and_budget_tolerance: ", origin_names_and_budget_tolerance)
+
     standardized_scores = min_max_scale(destination_scores)
 
     budgets_by_origin = defaultdict(dict)
+
     for dest, origenes in destination_budgets.items():
         for origen, precio in origenes.items():
             budgets_by_origin[origen][dest] = precio
@@ -243,9 +300,9 @@ def main_program(scores: dict[str: int], budgets: dict[str,int]):
     borda_count = calculate_borda_count(ranked_destinations)
     ranked_destinations_final = rank_destinations_by_borda_count(borda_count)
 
-    print(ranked_destinations_final)
-
     top3 = [nombre for nombre, _ in sorted(ranked_destinations_final, key=lambda x: x[1], reverse=True)[:3]]
+
+    price_message = generate_price_messages(destination_budgets, top3)
 
 
     prompt = f'''
@@ -282,7 +339,18 @@ List of destinations:
 
 [{top3}]
 
+At the end of the description, it is important to include and emphasize the price of the trip to each destination, which is:
+{price_message}, Always Highlight the price of the trip to each destination with BOLD, it is important.
+
 Group interests:
 
     '''
     return prompt
+
+
+budgets={"95565085":5}
+
+scores={"Bali, Indonesia":10,"Phuket, Thailand":9.5,"Barcelona, Spain":9,"Nice, France":8.5,"Oahu, Hawaii, USA":8.5,"Langkawi, Malaysia":8,"Lisbon, Portugal":7.5,"Vancouver, Canada":7,"Costa Brava, Spain":7,"San Sebastian, Spain":6.5}
+
+print(main_program(scores,budgets))
+
